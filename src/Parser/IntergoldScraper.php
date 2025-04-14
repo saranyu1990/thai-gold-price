@@ -27,7 +27,6 @@ class IntergoldScraper implements ScraperInterface
             'InterGold' => 'trend-1',
             'Association' => 'trend-2',
             'GoldSpot' => 'trend-3',
-            'USDTHB' => 'trend-4',
         ];
 
         $results = [];
@@ -38,6 +37,10 @@ class IntergoldScraper implements ScraperInterface
 
             $buyNode = $xpath->query($buyXpath);
             $sellNode = $xpath->query($sellXpath);
+
+            if ($buyNode->length === 0 || $sellNode->length === 0) {
+                throw new HtmlStructureException("Unable to find expected HTML structure for '$label' prices.");
+            }
 
             $buy = $this->parsePrice($buyNode->length > 0 ? $buyNode[0]->textContent : '');
             $sell = $this->parsePrice($sellNode->length > 0 ? $sellNode[0]->textContent : '');
@@ -59,7 +62,7 @@ class IntergoldScraper implements ScraperInterface
             $updatedAt = $this->convertThaiDateToIso($rawDate);
         }
 
-        return new GoldPriceDTO($results,$updatedAt); // <-- ปรับ DTO ให้รองรับ array ของราคาประเภทต่าง ๆ
+        return new GoldPriceDTO($results, $updatedAt); // <-- ปรับ DTO ให้รองรับ array ของราคาประเภทต่าง ๆ
     }
 
     /**
